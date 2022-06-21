@@ -61,6 +61,9 @@ class MainApp:
     def createSideBar(self):
         fetchSubmitted = False
         modelSubmitted = False
+
+        timestep = 0
+
         with st.sidebar:
             st.write("Fetch stock data")
             with st.form("stockForm"):
@@ -73,7 +76,7 @@ class MainApp:
             self.model = self.selectModel()
             with st.form("modelForm"):
                 if self.model == "LSTM":
-                    st.slider("Timesteps:", min_value=1, max_value=50)
+                    timestep = st.slider("Timesteps:", min_value=1, max_value=100, step=1, value=60)
                     self.selectLSTMLayers()
                     self.selectDenseLayers()
                 modelSubmitted = st.form_submit_button(label="Predict")
@@ -81,7 +84,7 @@ class MainApp:
         if fetchSubmitted:
             self.drawMainStockData()
         if modelSubmitted:
-            output = self.predictStock()
+            output = self.predictStock(timestep)
 
     def drawMainStockData(self):
         self.ticker = Ticker(self.stock)
@@ -102,17 +105,12 @@ class MainApp:
         st.session_state["fetchedData"] = self
         return 1
 
-    def predictStock(self):
+    def predictStock(self, timestep):
         self.__dict__ = st.session_state.fetchedData.__dict__ # copy of fields
         modelCreator = ModelCreator(self.data)
-        st.write(modelCreator.createLSTMPrediction())
+        st.plotly_chart(modelCreator.createLSTMPrediction(timestep))
         return 0
 
 if __name__ == '__main__':
     app = MainApp()
     app.createSideBar()
-    # chart_data = pd.DataFrame(
-    #     np.random.randn(20, 3),
-    #     columns=['a', 'b', 'c'])
-    #
-    # st.line_chart(chart_data)
