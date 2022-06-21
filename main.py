@@ -3,8 +3,14 @@ import time
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
+from pandas import DataFrame
+
 from Ticker import Ticker
+from ModelCreator import ModelCreator
+
 pd.set_option('display.max_colwidth', None)
+
 
 class MainApp:
     models = ["LSTM", "SVM"]
@@ -14,20 +20,21 @@ class MainApp:
         self.period = 0
         self.model = ""
         self.fetchOptions = {}
+        self.ticker = 0
+        self.data = None
 
-        self.ticker = None
-        self.selectFilter = list()
+    # Fetching methods
 
-    def selectStockTicker(self):
+    def selectStock(self):
         helpValue = "Model will be generated based on data fetched from Yahoo! Finance, " \
                     "based on a ticker name provided in a input."
-        return st.text_input("Stock ticker:", help=helpValue)
+        self.stock = st.text_input("Stock ticker:", value="NFLX", help=helpValue)
+        return self.stock
 
     def selectPeriod(self):
-        return st.slider("Period to fetch from data source (days):", min_value=1, max_value=90)
-
-    def selectModel(self):
-        return st.selectbox("Select prediction model:", MainApp.models)
+        self.period = st.slider("Period to fetch from data source (days):",
+                                min_value=1, max_value=365, value=90)
+        return self.period
 
     def selectFetchFilter(self):
         labels = ("Open", "High", "Low", "Close", "Volume", "Dividends", "Stock Splits")
@@ -35,31 +42,71 @@ class MainApp:
             self.fetchOptions = {label: st.checkbox(label, value=True) for label in labels}
         return self.fetchOptions
 
+    # Model methods
+
+    def selectModel(self):
+        self.model = st.selectbox("Select prediction model:", MainApp.models)
+        return self.model
+
+    def selectDenseLayers(self):
+        numberOfDense = int(st.number_input("Dense layers", min_value=1, max_value=10, step=1))
+        neuronsOfLayers = st.text_input("Num. of neurons for Dense", autocomplete="1", placeholder="ex. 1")
+        return 1
+
+    def selectLSTMLayers(self):
+        numberOfLSTMLayers = int(st.number_input("LSTM layers", min_value=1, max_value=10, step=1, value=2))
+        neuronsOfLayers = st.text_input("Num. of neurons for LSTM", autocomplete="50 20", placeholder="ex. 50 20")
+        return 1
+
     def createSideBar(self):
         fetchSubmitted = False
-
+        modelSubmitted = False
         with st.sidebar:
+            st.write("Fetch stock data")
             with st.form("stockForm"):
-                st.write("Fetch stock data")
-                self.stock = self.selectStockTicker()
-                self.period = self.selectPeriod()
+                self.selectStock()
+                self.selectPeriod()
                 self.selectFetchFilter()
                 fetchSubmitted = st.form_submit_button(label="Fetch Data")
 
+            st.write("Create prediction")
+            self.model = self.selectModel()
             with st.form("modelForm"):
-                st.write("Create model")
-                self.model = self.selectModel()
-                modelSubmitted = st.form_submit_button(label="Create data")
+                if self.model == "LSTM":
+                    st.slider("Timesteps:", min_value=1, max_value=50)
+                    self.selectLSTMLayers()
+                    self.selectDenseLayers()
+                modelSubmitted = st.form_submit_button(label="Predict")
 
         if fetchSubmitted:
             self.drawMainStockData()
+        if modelSubmitted:
+            output = self.predictStock()
 
     def drawMainStockData(self):
         self.ticker = Ticker(self.stock)
-        return st.dataframe(
-            self.ticker.getData(self.period)
-        )
+        selected = [k for k in self.fetchOptions.keys() if self.fetchOptions.get(k)]
+        self.data = self.ticker.getData(self.period)
 
+        st.write(f"Fetched {self.stock} data")
+        st.dataframe(self.data[selected])
+
+        fig = px.line(
+            self.data["Close"],
+            x=self.data.index,
+            y="Close",
+            markers=True,
+            title=f"{self.stock} closing price line chart")
+        st.plotly_chart(fig)
+
+        st.session_state["fetchedData"] = self
+        return 1
+
+    def predictStock(self):
+        self.__dict__ = st.session_state.fetchedData.__dict__ # copy of fields
+        modelCreator = ModelCreator(self.data)
+        st.write(modelCreator.createLSTMPrediction())
+        return 0
 
 if __name__ == '__main__':
     app = MainApp()

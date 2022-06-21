@@ -1,13 +1,13 @@
 import yfinance as yf
+from pandas import DataFrame
+
 
 class Ticker:
-    def __init__(self, ticker):
-        self.ticker = yf.Ticker(ticker)
+    def __init__(self, tickerIndex):
+        self.ticker = yf.Ticker(tickerIndex)
 
-    def getData(self, period: int):
+    def getData(self, period: int) -> DataFrame:
         return self.ticker.history(
             period=str(period)+"d"
         )
 
-if __name__ == '__main__':
-    test = Ticker("AAPL")
