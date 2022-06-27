@@ -1,13 +1,9 @@
-import time
-
-import streamlit as st
 import pandas as pd
-import numpy as np
 import plotly.express as px
-from pandas import DataFrame
+import streamlit as st
 
-from Ticker import Ticker
 from ModelCreator import ModelCreator
+from Ticker import Ticker
 
 pd.set_option('display.max_colwidth', None)
 
@@ -31,7 +27,6 @@ class MainApp:
         # load state of main page
         self.loadMainStage()
 
-
     def loadMainStage(self):
         if 'fetchedData' in st.session_state.keys():
             self.__dict__ = st.session_state.fetchedData.__dict__
@@ -39,7 +34,6 @@ class MainApp:
             st.write(f"Fetched {self.stock} data")
             st.dataframe(self.dataFetched[self.fetchOptions])
             st.plotly_chart(self.graph)
-
 
     # Fetching methods
     def selectStock(self):
@@ -50,7 +44,7 @@ class MainApp:
 
     def selectPeriod(self):
         self.periodToFetch = st.slider("Days to fetch from data source:",
-                                       min_value=1, max_value=365*2, value=180)
+                                       min_value=1, max_value=365 * 2, value=180)
         return self.periodToFetch
 
     def selectFetchFilter(self):
@@ -60,8 +54,6 @@ class MainApp:
             self.fetchOptions = [k for k in self.fetchOptions.keys() if self.fetchOptions.get(k)]
         return self.fetchOptions
 
-
-
     # Model methods
     def selectModel(self):
         self.model = st.selectbox("Select prediction model:", MainApp.models)
@@ -70,7 +62,10 @@ class MainApp:
     def selectionModelExpander(self):
         if self.model == "LSTM":
             layers = ["LSTM", "Dense"]
-            epochs = st.number_input("Epochs:", step=1, min_value=1)
+            networkColumns = st.columns([1, 1])
+            epochs = networkColumns[0].number_input("Epochs:", step=1, min_value=1)
+            batchSize = networkColumns[1].number_input("Batch size:", step=1, min_value=1)
+            windowSize = st.slider("Window size:", min_value=1, max_value=60, value=20, step=1)
             sender = ""
             with st.form("Add layer"):
                 layerColumns = st.columns([1, 2])
@@ -82,6 +77,10 @@ class MainApp:
                 st.session_state.concat = ""
             text = st.text_area("Layers parser", value=st.session_state.concat + sender)
             st.session_state.concat = text
+            if st.button("Create prediction"):
+                mc = ModelCreator(self.dataFetched)
+                mc.parseLayers(text)
+                mc.createLSTMPrediction(epochs, batchSize, windowSize)
 
     def selectDenseLayers(self):
         numberOfDense = int(st.number_input("Dense layers", min_value=1, max_value=10, step=1))
@@ -93,14 +92,11 @@ class MainApp:
         neuronsOfLayers = st.text_input("Num. of neurons for LSTM", autocomplete="50 20", placeholder="ex. 50 20")
         return 1
 
-
     # sideBar creator
     def createSideBar(self):
         fetchSubmitted = False
         modelSubmitted = False
         timestep = 0
-
-        # load state of fields
 
         with st.sidebar:
             st.write("Fetch stock data")
@@ -126,8 +122,6 @@ class MainApp:
         if modelSubmitted:
             output = self.predictStock(timestep)
 
-
-
     # fetched Data drawer
     def drawMainStockData(self):
         self.ticker = Ticker(self.stock)
@@ -147,7 +141,7 @@ class MainApp:
         return 1
 
     def predictStock(self, timestep):
-        self.__dict__ = st.session_state.fetchedData.__dict__ # copy of fields
+        self.__dict__ = st.session_state.fetchedData.__dict__  # copy of fields
         modelCreator = ModelCreator(self.dataFetched)
         st.plotly_chart(modelCreator.createLSTMPrediction(timestep))
         return 0

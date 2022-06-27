@@ -1,96 +1,95 @@
 import math
+
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
 import plotly.express as px
-from pandas import DataFrame
-from keras.models import Sequential
 from keras.layers import Dense, LSTM, Dropout
+from keras.models import Sequential
+from matplotlib import pyplot as plt
+from pandas import DataFrame
 from sklearn.preprocessing import MinMaxScaler
+
 
 class ModelCreator:
 
     def __init__(self, dataFrame: DataFrame):
         self.dataFrame = dataFrame
+        self.layers = None
 
-    # Split the time-series data into training seq X and output value Y
-    def extract_seqX_outcomeY(self, data, N, offset):
-        """
-        Split time-series into training sequence X and outcome value Y
-        Args:
-            data - dataset
-            N - window size, e.g., 50 for 50 days of historical stock prices
-            offset - position to start the split
-        """
-        X, y = [], []
+    # Parse layers
+    def parseLayers(self, text: str):
+        self.layers = list(map(lambda l: l.split(" "),
+                               text.strip().split("\n")
+                               ))
+        return self.layers
 
-        for i in range(offset, len(data)):
-            X.append(data[i - N:i])
-            y.append(data[i])
+    def createLSTMPrediction(self, epochs: int, batchSize: int, timeWindow: int):
 
-        return np.array(X), np.array(y)
+        df = self.dataFrame['Close'].values
+        df = df.reshape(-1, 1)
 
-
-    def createLSTMPrediction(self, timestep):
-        timestep = int(timestep)
-
-        close_prices = self.dataFrame["Close"]
-        values = close_prices.values
-        training_data_len = math.ceil(len(values) * 0.8)
+        len = df.shape[0]
+        splitIndex = int(len * 0.8)
+        dataset_train = np.array(df[:splitIndex])
+        dataset_test = np.array(df[splitIndex:])
 
         scaler = MinMaxScaler(feature_range=(0, 1))
-        scaled_data = scaler.fit_transform(values.reshape(-1, 1))
-        train_data = scaled_data[0: training_data_len, :]
+        dataset_train = scaler.fit_transform(dataset_train)
+        dataset_test = scaler.fit_transform(dataset_test)
 
-        x_train = []
-        y_train = []
+        print(np.ndarray.tolist(dataset_train))
+        def create_dataset(df, window):
+            x = []
+            y = []
+            for i in range(window, df.shape[0]):
+                x.append(df[i - window:i, 0])
+                y.append(df[i, 0])
+            x = np.array(x)
+            y = np.array(y)
+            return x, y
 
-        for i in range(timestep, len(train_data)):
-            x_train.append(train_data[i - timestep:i, 0])
-            y_train.append(train_data[i, 0])
+        x_train, y_train = create_dataset(dataset_train, timeWindow)
+        x_test, y_test = create_dataset(dataset_test, timeWindow)
 
-        x_train, y_train = np.array(x_train), np.array(y_train)
         x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
-        scaled_data = self.dataFrame["Close"].values.reshape(-1, 1)
-
-        test_data = scaled_data[training_data_len - timestep:, :]
-        x_test = []
-        y_test = values[training_data_len:]
-
-        for i in range(timestep, len(test_data)):
-            x_test.append(test_data[i - timestep:i, 0])
-
-        x_test = np.array(x_test)
         x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
 
         model = Sequential()
-        model.add(LSTM(50, return_sequences=True, input_shape=(x_train.shape[1], 1)))
-        model.add(LSTM(50, return_sequences=False))
-        model.add(Dense(25))
-        model.add(Dense(1))
-        model.summary()
+        model.add(LSTM(units=96, return_sequences=True, input_shape=(x_train.shape[1], 1)))
+        model.add(Dropout(0.2))
+        model.add(LSTM(units=96, return_sequences=True))
+        model.add(Dropout(0.2))
+        model.add(LSTM(units=96, return_sequences=True))
+        model.add(Dropout(0.2))
+        model.add(LSTM(units=96))
+        model.add(Dropout(0.2))
+        model.add(Dense(units=1))
 
-        model.compile(optimizer='adam', loss='mean_squared_error')
-        model.fit(x_train, y_train, batch_size=1, epochs=3)
-
+        model.compile(loss='mean_squared_error', optimizer='adam')
+        model.fit(x_train, y_train, epochs=2, batch_size=32)
         predictions = model.predict(x_test)
+
+        # results
         predictions = scaler.inverse_transform(predictions)
-        rmse = np.sqrt(np.mean(predictions - y_test) ** 2)
-        rmse
+        # actual
+        y_test_scaled = scaler.inverse_transform(y_test.reshape(-1, 1))
 
-        data = self.dataFrame.filter(['Close'])
-        train = data[:training_data_len]
-        validation = data[training_data_len:]
-        validation['Predictions'] = predictions
+        dates = self.dataFrame.index[splitIndex:]
+        dfPredictions = pd.DataFrame()
+        # print(dates)
+        predictions = np.ndarray.tolist(predictions)
+        dfPredictions['Date'] = dates
+        dfPredictions['Predictions'] = predictions
+        dfActual = pd.DataFrame(dates, y_test_scaled)
+        print(dfActual)
+        # fig = px.line(
+        #     dfPredictions,
+        #     x="Date",
+        #     y="Prediction",
+        #     markers=True,
+        #     title=f"closing price line chart")
 
-        fig = px.line(
-            validation,
-            x=validation.index,
-            y=["Close", "Predictions"],
-            markers=True,
-            title=f"closing price line chart")
-
-        return fig
-
+        return 1
 
     #### Calculate the metrics RMSE and MAPE ####
     def calculate_rmse(y_true, y_pred):
@@ -107,4 +106,3 @@ class ModelCreator:
         y_pred, y_true = np.array(y_pred), np.array(y_true)
         mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
         return mape
-
