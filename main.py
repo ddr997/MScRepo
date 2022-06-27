@@ -9,7 +9,7 @@ pd.set_option('display.max_colwidth', None)
 
 
 class MainApp:
-    models = ["LSTM", "SVM"]
+    models = ["LSTM", "Linear Regression"]
 
     def __init__(self):
 
@@ -34,17 +34,22 @@ class MainApp:
             st.write(f"Fetched {self.stock} data")
             st.dataframe(self.dataFetched[self.fetchOptions])
             st.plotly_chart(self.graph)
+            if "plotPred" in st.session_state.keys():
+                st.plotly_chart(st.session_state.plotPred)
+                col1, col2 = st.columns(2)
+                col1.metric("RMSE", st.session_state.rmse)
+                col2.metric("MAPE", st.session_state.mape)
 
     # Fetching methods
     def selectStock(self):
         helpValue = "Model will be generated based on data fetched from Yahoo! Finance, " \
                     "based on a ticker name provided in a input."
-        self.stock = st.text_input("Stock ticker:", value="NFLX", help=helpValue)
+        self.stock = st.text_input("Stock ticker:", value="ALE.WA", help=helpValue)
         return self.stock
 
     def selectPeriod(self):
         self.periodToFetch = st.slider("Days to fetch from data source:",
-                                       min_value=1, max_value=365 * 2, value=180)
+                                       min_value=1, max_value=365 * 3, value=366)
         return self.periodToFetch
 
     def selectFetchFilter(self):
@@ -61,42 +66,43 @@ class MainApp:
 
     def selectionModelExpander(self):
         if self.model == "LSTM":
-            layers = ["LSTM", "Dense"]
+            layers = ["LSTM", "Dense", "Dropout"]
             networkColumns = st.columns([1, 1])
-            epochs = networkColumns[0].number_input("Epochs:", step=1, min_value=1)
-            batchSize = networkColumns[1].number_input("Batch size:", step=1, min_value=1)
-            windowSize = st.slider("Window size:", min_value=1, max_value=60, value=20, step=1)
+            epochs = networkColumns[0].number_input("Epochs:", step=1, min_value=1, value=10)
+            batchSize = networkColumns[1].number_input("Batch size:", step=1, min_value=1, value=32)
+            windowSize = st.slider("Window size:", min_value=1, max_value=120, step=1, value=20)
             sender = ""
+
             with st.form("Add layer"):
-                layerColumns = st.columns([1, 2])
+                layerColumns = st.columns([1, 1])
                 layer = layerColumns[0].selectbox("Layer:", layers)
                 neurons = layerColumns[1].number_input("Neurons:", step=1, min_value=1)
+                # returnSequence = st.selectbox("Return seq.", [True, False])
                 if st.form_submit_button("Add layer"):
-                    sender = f"{layer} {neurons}\n"
+                    sender = f"\n{layer} {neurons}"
+
             if "concat" not in st.session_state:
-                st.session_state.concat = ""
+                st.session_state.concat = "LSTM 96\nDropout 0.2\nLSTM 96\nDropout 0.2\nLSTM 96\nDropout 0.2\nDense 1"
             text = st.text_area("Layers parser", value=st.session_state.concat + sender)
             st.session_state.concat = text
+
             if st.button("Create prediction"):
                 mc = ModelCreator(self.dataFetched)
                 mc.parseLayers(text)
-                mc.createLSTMPrediction(epochs, batchSize, windowSize)
+                st.session_state.plotPred, st.session_state.rmse, st.session_state.mape \
+                    = mc.createLSTMPrediction(epochs, batchSize, windowSize)
+                return 2
 
-    def selectDenseLayers(self):
-        numberOfDense = int(st.number_input("Dense layers", min_value=1, max_value=10, step=1))
-        neuronsOfLayers = st.text_input("Num. of neurons for Dense", autocomplete="1", placeholder="ex. 1")
-        return 1
-
-    def selectLSTMLayers(self):
-        numberOfLSTMLayers = int(st.number_input("LSTM layers", min_value=1, max_value=10, step=1, value=2))
-        neuronsOfLayers = st.text_input("Num. of neurons for LSTM", autocomplete="50 20", placeholder="ex. 50 20")
-        return 1
+        if self.model == "Linear Regression":
+            if st.button("Create prediction"):
+                mc = ModelCreator(self.dataFetched)
+                mc.createLinearRegressionPrediction()
+            return 1
 
     # sideBar creator
     def createSideBar(self):
         fetchSubmitted = False
         modelSubmitted = False
-        timestep = 0
 
         with st.sidebar:
             st.write("Fetch stock data")
@@ -108,19 +114,14 @@ class MainApp:
 
             st.write("Create prediction")
             self.selectModel()
-            self.selectionModelExpander()
-
-            # with st.form("modelForm"):
-            #     if self.model == "LSTM":
-            #         timestep = st.slider("Timesteps:", min_value=1, max_value=100, step=1, value=60)
-            #         self.selectLSTMLayers()
-            #         self.selectDenseLayers()
-            #     modelSubmitted = st.form_submit_button(label="Predict")
+            plotPred = self.selectionModelExpander()
 
         if fetchSubmitted:
             self.drawMainStockData()
-        if modelSubmitted:
-            output = self.predictStock(timestep)
+        if plotPred == 2:
+            st.experimental_rerun()
+        if plotPred == 1:
+            print(plotPred)
 
     # fetched Data drawer
     def drawMainStockData(self):
@@ -133,18 +134,13 @@ class MainApp:
             markers=True,
             title=f"{self.stock} closing price line chart"
         )
+        self.graph.update_traces(line_color='#05F097', line_width=2, marker_size=1)
 
         # save state
         st.session_state["fetchedData"] = self
         # rerun
         st.experimental_rerun()
         return 1
-
-    def predictStock(self, timestep):
-        self.__dict__ = st.session_state.fetchedData.__dict__  # copy of fields
-        modelCreator = ModelCreator(self.dataFetched)
-        st.plotly_chart(modelCreator.createLSTMPrediction(timestep))
-        return 0
 
 
 if __name__ == '__main__':
