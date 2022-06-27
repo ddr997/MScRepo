@@ -12,6 +12,23 @@ class ModelCreator:
     def __init__(self, dataFrame: DataFrame):
         self.dataFrame = dataFrame
 
+    # Split the time-series data into training seq X and output value Y
+    def extract_seqX_outcomeY(self, data, N, offset):
+        """
+        Split time-series into training sequence X and outcome value Y
+        Args:
+            data - dataset
+            N - window size, e.g., 50 for 50 days of historical stock prices
+            offset - position to start the split
+        """
+        X, y = [], []
+
+        for i in range(offset, len(data)):
+            X.append(data[i - N:i])
+            y.append(data[i])
+
+        return np.array(X), np.array(y)
+
 
     def createLSTMPrediction(self, timestep):
         timestep = int(timestep)
@@ -73,4 +90,21 @@ class ModelCreator:
             title=f"closing price line chart")
 
         return fig
+
+
+    #### Calculate the metrics RMSE and MAPE ####
+    def calculate_rmse(y_true, y_pred):
+        """
+        Calculate the Root Mean Squared Error (RMSE)
+        """
+        rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+        return rmse
+
+    def calculate_mape(y_true, y_pred):
+        """
+        Calculate the Mean Absolute Percentage Error (MAPE) %
+        """
+        y_pred, y_true = np.array(y_pred), np.array(y_true)
+        mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+        return mape
 
