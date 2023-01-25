@@ -30,7 +30,6 @@ class MainApp:
     def loadMainStage(self):
         if 'fetchedData' in st.session_state.keys():
             self.__dict__ = st.session_state.fetchedData.__dict__
-
             st.write(f"Fetched {self.stock} data")
             st.dataframe(self.dataFetched[self.fetchOptions])
             st.plotly_chart(self.graph)
