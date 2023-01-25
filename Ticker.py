@@ -2,7 +2,7 @@ import yfinance as yf
 from pandas import DataFrame
 
 
-class Ticker:
+class Ticker(yf.Ticker):
     def __init__(self, tickerIndex):
         self.ticker = yf.Ticker(tickerIndex)
 
