@@ -3,9 +3,6 @@ from indicators.IndicatorsAbstract import IndicatorsAbstract
 pd.set_option('display.max_colwidth', None)
 
 class RelativeStrength(IndicatorsAbstract):
-    def __init__(self):
-        None
-
     def calculate(df: pd.DataFrame, df2: pd.DataFrame) -> pd.DataFrame:
         relativeStrength = df['Close']/df2['Close']
         df["RelStr"] = relativeStrength
