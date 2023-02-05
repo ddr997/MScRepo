@@ -7,9 +7,9 @@ class ROC(IndicatorsAbstract):
     def __init__(self):
         None
 
-    def calculate(df: pd.DataFrame, n: int) -> pd.DataFrame:
-        N = data["Close"].diff(n)
-        D = data["Close"].shift(n)
+    def calculate(df: pd.DataFrame, n: int = 2) -> pd.DataFrame:
+        N = df["Close"].diff(n)
+        D = df["Close"].shift(n)
         roc = pd.Series(100* N/D, name="ROC")
         df["ROC"] = roc
         return roc

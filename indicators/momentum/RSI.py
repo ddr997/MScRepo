@@ -7,7 +7,7 @@ class RSI(IndicatorsAbstract):
     def __init__(self):
         None
 
-    def calculate(df: pd.DataFrame, periods: int, ema=True) -> pd.DataFrame:
+    def calculate(df: pd.DataFrame, periods: int = 14, ema=True) -> pd.DataFrame:
         close_delta = df['Close'].diff() #diff from each day
 
         up = close_delta.clip(lower=0) #gains

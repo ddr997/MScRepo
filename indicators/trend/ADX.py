@@ -6,7 +6,7 @@ pd.set_option('display.max_colwidth', None)
 
 class ADX(IndicatorsAbstract):
 
-    def calculate(df: pd.DataFrame, period: int):
+    def calculate(df: pd.DataFrame, period: int = 14):
         plus_dm = df["High"].diff()
         minus_dm = df["Low"].diff()
         plus_dm[plus_dm < 0] = 0

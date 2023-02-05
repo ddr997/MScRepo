@@ -15,3 +15,6 @@ class IndicatorsAbstract:
         data = dataSource.history(period=period)
         data = data.drop(columns=["Dividends", "Stock Splits"])
         return data
+
+if __name__ == '__main__':
+    data = yf.Ticker("WIG20.WA")

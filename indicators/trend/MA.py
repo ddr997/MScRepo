@@ -5,7 +5,7 @@ pd.set_option('display.max_colwidth', None)
 
 class MA(IndicatorsAbstract):
 
-    def calculate(df: pd.DataFrame, period: int, column = "Close", EMA: bool = False) -> pd.DataFrame:
+    def calculate(df: pd.DataFrame, period: int = 14, column = "Close", EMA: bool = False) -> pd.DataFrame:
         if EMA:
             ema = df[column].ewm(span=period, adjust=True, min_periods=period).mean()
             df["EMA"] = ema

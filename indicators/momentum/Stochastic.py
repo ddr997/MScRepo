@@ -8,7 +8,7 @@ class Stochastic(IndicatorsAbstract):
     def __init__(self):
         None
 
-    def calculate(dataFrame: pd.DataFrame, period: int, D: int) -> pd.DataFrame:
+    def calculate(dataFrame: pd.DataFrame, period: int = 14, D: int = 3) -> pd.DataFrame:
         df = dataFrame.copy(deep=True)
         # max/min of high/low in the period
         df['n_high'] = df['High'].rolling(period).max()
@@ -16,7 +16,7 @@ class Stochastic(IndicatorsAbstract):
         df['%K'] = (df['Close'] - df['n_low']) * 100 / (df['n_high'] - df['n_low'])
         df['%D'] = df['%K'].rolling(D).mean()
 
-        dataFrame["Stochastic"] = df["%D"]
+        dataFrame["Stochastic.py"] = df["%D"]
         return df
 
 if __name__ == '__main__':
