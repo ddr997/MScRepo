@@ -18,4 +18,4 @@ class StateData:
         # object fields
         self.ticker = None
         self.dataFrame = None
-        self.plot = None
+        self.plot = Plot()

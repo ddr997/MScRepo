@@ -2,6 +2,7 @@ import streamlit as st
 import plotly.express as px
 from Ticker import Ticker
 from StateData import StateData
+import plotly.graph_objects as go
 
 
 class StockMenu():
@@ -39,14 +40,15 @@ class StockMenu():
     def createDataframeAndPlot(self, stateData):
         stateData.ticker = Ticker(stateData.stock)
         stateData.dataFrame = stateData.ticker.getData(stateData.period)[stateData.stockDataColumns]
-        stateData.plot = px.line(
-            stateData.dataFrame["Close"],
-            x=stateData.dataFrame.index,
-            y="Close",
-            markers=True,
-            title=f"{stateData.stock} closing price line chart"
-        )
-        stateData.plot.update_traces(line_color='#05F097', line_width=2, marker_size=1)
+        # stateData.plot = px.line(
+        #     stateData.dataFrame["Close"],
+        #     x=stateData.dataFrame.index,
+        #     y="Close",
+        #     markers=True,
+        #     title=f"{stateData.stock} closing price line chart"
+        # )
+        # stateData.plot.update_traces(line_color='#05F097', line_width=2, marker_size=1)
+        stateData.plot.generateFigure(stateData.dataFrame)
 
         # save state
         st.session_state["state"] = stateData

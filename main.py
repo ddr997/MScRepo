@@ -9,12 +9,26 @@ from UI.side.IndicatorsMenu import IndicatorsMenu
 from UI.side.StockMenu import StockMenu
 
 pd.set_option('display.max_colwidth', None)
-
+st.set_page_config(layout="wide")
+st.markdown(
+    f"""
+    <style>
+    .appview-container .main .block-container{{
+        padding-top: {2}rem;
+        }}
+    .reportview-container .sidebar-content {{
+        padding-top: {1}rem;
+        }}
+    .css-1gx893w.egzxvld2 {{
+      margin-top: -75px;
+    }}
+    </style>
+    """, unsafe_allow_html=True
+)
 
 class MainApp:
     models = ["LSTM", "Linear Regression"]
     def __init__(self):
-
         self.stateData = StateData()
         # load state of main page
         self.mainStage()
@@ -24,8 +38,10 @@ class MainApp:
             self.stateData = st.session_state.state
             st.write(f"Fetched {self.stateData.stock} data")
             st.dataframe(self.stateData.dataFrame.iloc[::-1])
-            subPlotIndicatorName = st.selectbox("Select indicator to plot:", self.stateData.selectedIndicators)
-            st.plotly_chart(self.stateData.plot)
+            subPlotIndicatorName = st.selectbox("Select indicator to plot:", self.stateData.dataFrame.columns[4:])
+            if subPlotIndicatorName in self.stateData.dataFrame.columns:
+                self.stateData.plot.addIndicatorTrace(self.stateData.dataFrame, y=subPlotIndicatorName)
+            st.plotly_chart(self.stateData.plot.fig, theme=None)
             # if "plotPred" in st.session_state.keys():
             #     st.plotly_chart(st.session_state.plotPred)
             #     col1, col2 = st.columns(2)
@@ -89,8 +105,6 @@ class MainApp:
         #     st.experimental_rerun()
         # if plotPred == 1:
         #     print(plotPred)
-
-    # fetched Data drawer
 
 if __name__ == '__main__':
     app = MainApp()

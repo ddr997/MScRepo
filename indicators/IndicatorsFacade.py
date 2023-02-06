@@ -1,3 +1,5 @@
+import inspect
+
 from indicators.breadth.AdvanceDecline import *
 from indicators.breadth.UDVR import *
 
@@ -20,8 +22,8 @@ from indicators.volume.MFI import MFI
 from indicators.volume.OBV import OBV
 
 facade = {
-    "AdvanceDecline": 0,
-    "UDVR": 0,
+    # "AdvanceDecline": 0,
+    # "UDVR": 0,
 
     "RelativeStrength": RelativeStrength.calculate,
     "ROC": ROC.calculate,
@@ -44,6 +46,11 @@ facade = {
 
 class IndicatorsFacade:
     indicatorsList = [i for i in facade.keys()]
+    parametersList = [inspect.getfullargspec(i).args for i in facade.values()]
 
     def map(key: str):
         return facade.get(key)
+
+
+if __name__ == "__main__":
+    print(IndicatorsFacade.parametersList)

@@ -17,4 +17,5 @@ class IndicatorsAbstract:
         return data
 
 if __name__ == '__main__':
-    data = yf.Ticker("WIG20.WA")
+    data = yf.Ticker("EURPLN=X")
+    print(data.history(period="1y"))
