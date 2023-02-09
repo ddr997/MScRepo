@@ -6,6 +6,7 @@ from StateData import StateData
 from ModelCreator import ModelCreator
 from Ticker import Ticker
 from UI.side.IndicatorsMenu import IndicatorsMenu
+from UI.side.ModelsMenu import ModelsMenu
 from UI.side.StockMenu import StockMenu
 
 pd.set_option('display.max_colwidth', None)
@@ -94,9 +95,8 @@ class MainApp:
 
         StockMenu(self.stateData)
         IndicatorsMenu(self.stateData)
+        ModelsMenu(self.stateData)
         # with st.sidebar:
-        #     st.write("Create prediction")
-        #     self.selectModel()
         #     plotPred = self.selectionModelExpander()
 
         # if stockMenu.fetchSubmitted:

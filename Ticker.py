@@ -7,7 +7,5 @@ class Ticker(yf.Ticker):
         self.ticker = yf.Ticker(tickerIndex)
 
     def getData(self, period: int) -> DataFrame:
-        return self.ticker.history(
-            period=str(period)+"d"
-        )
+        return self.ticker.history(period=str(period)+"d")
 

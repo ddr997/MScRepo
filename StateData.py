@@ -8,12 +8,11 @@ class StateData:
         self.period = 0
         self.stockDataColumns = {}
 
-
         # indicators
         self.selectedIndicators = []
 
-
-        self.model = ""
+        # AI
+        self.choosenModel = ""
 
         # object fields
         self.ticker = None
