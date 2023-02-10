@@ -50,7 +50,8 @@ class DataProcessing():
         return df
 
     def generateXY_withShift(df: DataFrame, daysShift:int):
-        target = df['Close'].shift(-1).dropna().iloc[:len(df.values)-daysShift] # k in k-1 row
+        target = df['Close'].shift(-1).dropna()
+        target = target.iloc[:len(target.values)-daysShift] # k in k-1 row
         df_copy = df.copy(deep=True)
         input = df_copy.drop('Close', axis=1).iloc[:-1-daysShift] #k-1
         return input, target
