@@ -16,7 +16,7 @@ class DataProcessing():
     #     return normalized_df
     scaler = StandardScaler()
 
-    def meanNormalizeDataframe(df: DataFrame, columnsToOmit: list = [], resetScaler = True):
+    def meanNormalizeDataframe(df: DataFrame, columnsToOmit: list = [], resetScaler = True) -> np.ndarray:
         df = df.copy(deep=True).drop(columnsToOmit, axis=1)
         if resetScaler:
             DataProcessing.scaler.fit(df.values)
@@ -24,13 +24,24 @@ class DataProcessing():
         normalized_dataframe = pd.DataFrame(normalized_array, index = df.index, columns = df.columns)
         return normalized_array
 
-    # def minMaxNormalizeDataframe(df: DataFrame, columnsToOmit: list = []):
-    #     df = df.copy(deep=True).drop(columnsToOmit, axis=1)
-    #     normalized_df = (df - df.min()) / (df.max() - df.min())
-    #     return normalized_df
+    def meanNormalizeArray(array: np.ndarray, resetScaler = True)  -> np.ndarray:
+        if resetScaler:
+            DataProcessing.scaler.fit(df.values)
+        normalized_array = DataProcessing.scaler.transform(df.values)
+        return normalized_array
 
-    def splitData(x: np.ndarray, y: np.ndarray, trainProportion: float = 0.8):
-        x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=trainProportion, shuffle=False)
+    def splitData_array(x: np.ndarray, y: np.ndarray, trainRatio: float = 0.8):
+        x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=trainRatio, shuffle=False)
+        return x_train, x_test, y_train, y_test
+
+    def splitData_Dataframe(trainDF: DataFrame, testDF: DataFrame, trainRatio: float = 0.8):
+        l = len(trainDF.values)
+        splitIndex = round(l*trainRatio)
+        x_train = trainDF.iloc[0:splitIndex]
+        x_test = trainDF.iloc[splitIndex:]
+
+        y_train = testDF.iloc[0:splitIndex]
+        y_test = testDF.iloc[splitIndex:]
         return x_train, x_test, y_train, y_test
 
     def convertTo_ndarray(df: DataFrame):
@@ -39,7 +50,7 @@ class DataProcessing():
     # def convertTo_dataframe(array: np.ndarray, index: pd.DatetimeIndex, columnLabels:list = []):
     #     return pd.DataFrame(array, columns = columnLabels, index = index)
 
-    def convertTo_dataframe(*arrays: np.ndarray, index: pd.DatetimeIndex, columnLabels:list = []):
+    def convertTo_Dataframe(*arrays: np.ndarray, index: pd.DatetimeIndex, columnLabels:list = []):
         df = pd.DataFrame(index = index)
         iterator = iter(columnLabels)
         for i in arrays:
@@ -49,15 +60,16 @@ class DataProcessing():
                 df[len(df.columns)] = i
         return df
 
-    def generateXY_withShift(df: DataFrame, daysShift:int):
+    def generateXY_withDaysShift(df: DataFrame, daysShift: int):
         target = df['Close'].shift(-1).dropna()
-        target = target.iloc[:len(target.values)-daysShift] # k in k-1 row
+        target = target.iloc[:len(target.values)-daysShift] # k target in k-1 row training
+
         df_copy = df.copy(deep=True)
-        input = df_copy.drop('Close', axis=1).iloc[:-1-daysShift] #k-1
+        input = df_copy.drop('Close', axis=1).iloc[:-1-daysShift] # k-1 row
         return input, target
 
 
-    def extendDataFrameWithLookBacksColumn(df: DataFrame, daysToLookBack: int):
+    def extendDataFrameWithLookbacksColumn(df: DataFrame, daysToLookBack: int):
         for k in range(1,daysToLookBack+1):
             colIndex = "Close_k-"+str(k)
             df[colIndex] = df['Close'].shift(k)
@@ -65,10 +77,24 @@ class DataProcessing():
 
     def plotBasicComparisonGraph(df: DataFrame):
         fig = px.line(df, markers=True, title="Close price actual vs predicted")
-        fig.update_layout(yaxis=dict(title="Close price"))
+        fig.update_layout(yaxis=dict(title="Close price"), hovermode="x unified")
         fig.show()
         return
 
+    def calculate_rmse(y_true: np.ndarray, y_pred: np.ndarray):
+        """
+        Calculate the Root Mean Squared Error (RMSE)
+        """
+        rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+        return rmse
+
+    def calculate_mape(y_true: np.ndarray, y_pred: np.ndarray):
+        """
+        Calculate the Mean Absolute Percentage Error (MAPE) %
+        """
+        y_pred, y_true = np.array(y_pred), np.array(y_true)
+        mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+        return mape
 
 if __name__ == "__main__":
     ticker = Ticker("ALE.WA")

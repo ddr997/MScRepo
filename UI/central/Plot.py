@@ -14,8 +14,8 @@ class Plot:
             xaxis=dict(type="date"),
             yaxis=dict(autorange=True, fixedrange=False, domain=[0, 0.3]),
             xaxis2=dict(anchor="x"),
-            yaxis2=dict(domain=[0.32, 1], title="Close Price", autorange=True, fixedrange=False,)
-
+            yaxis2=dict(domain=[0.32, 1], title="Close Price", autorange=True, fixedrange=False,),
+            hovermode="x unified"
         )
         self.fig.update_traces(
             marker=dict(color="LightSeaGreen"),

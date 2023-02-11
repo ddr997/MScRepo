@@ -153,14 +153,14 @@ class ModelCreator:
 
 
     #### Calculate the metrics RMSE and MAPE ####
-    def calculate_rmse(self, y_true, y_pred):
+    def calculate_rmse(y_true, y_pred):
         """
         Calculate the Root Mean Squared Error (RMSE)
         """
         rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
         return rmse
 
-    def calculate_mape(self, y_true, y_pred):
+    def calculate_mape(y_true, y_pred):
         """
         Calculate the Mean Absolute Percentage Error (MAPE) %
         """
