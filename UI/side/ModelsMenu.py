@@ -7,7 +7,6 @@ from models.SVR import SVRmodel
 class ModelsMenu:
     def __init__(self, stateData: StateData):
         self.availableModels = ["SVR", "LSTM", "GradientBoost", "XGBoost"]
-        st.write("Make prediction")
         with st.sidebar:
             stateData.choosenModel = st.selectbox("Choose prediction algorithm:", self.availableModels)
 
@@ -34,7 +33,8 @@ class ModelsMenu:
                 df = df.replace(np.nan, 0)
                 model = SVRmodel()
                 model.prepareModel(kernel=kernel, C=C, epsilon=epsilon)
-                model.createPrediction(df, 1)
+                stateData.predictionFigure = model.createPrediction(df, 1)
+                st.experimental_rerun()
         return
 
     def GradientBoost(self, stateData):

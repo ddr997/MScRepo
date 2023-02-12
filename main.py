@@ -43,6 +43,8 @@ class MainApp:
             if subPlotIndicatorName in self.stateData.dataFrame.columns:
                 self.stateData.plot.addIndicatorTrace(self.stateData.dataFrame, y=subPlotIndicatorName)
             st.plotly_chart(self.stateData.plot.fig, theme=None)
+            if self.stateData.predictionFigure != None:
+                st.plotly_chart(self.stateData.predictionFigure)
             # if "plotPred" in st.session_state.keys():
             #     st.plotly_chart(st.session_state.plotPred)
             #     col1, col2 = st.columns(2)

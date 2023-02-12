@@ -13,8 +13,10 @@ class StateData:
 
         # AI
         self.choosenModel = ""
+        self.predictionFigure = None
 
         # object fields
         self.ticker = None
         self.dataFrame = None
+        self.cleanDataFrame = None
         self.plot = Plot()

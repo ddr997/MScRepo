@@ -78,8 +78,7 @@ class DataProcessing():
     def plotBasicComparisonGraph(df: DataFrame):
         fig = px.line(df, markers=True, title="Close price actual vs predicted")
         fig.update_layout(yaxis=dict(title="Close price"), hovermode="x unified")
-        fig.show()
-        return
+        return fig
 
     def calculate_rmse(y_true: np.ndarray, y_pred: np.ndarray):
         """

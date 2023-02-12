@@ -5,6 +5,7 @@ from indicators.IndicatorsFacade import IndicatorsFacade
 class IndicatorsMenu:
     def __init__(self, stateData: StateData):
         self.submit = False
+        self.stateData = stateData # used for clearing dataframe
 
         with st.sidebar:
             st.write("Select indicators to calculate")
@@ -16,6 +17,7 @@ class IndicatorsMenu:
                                                   stateData.selectedIndicators.get(k)]
                 self.submit = st.form_submit_button(label="Calculate")
         if (self.submit):
+            self.clearDataFrame(stateData)
             self.calculateSelectedIndicators(stateData)
             st.session_state["state"] = stateData
             st.experimental_rerun()
@@ -26,3 +28,6 @@ class IndicatorsMenu:
          if k not in stateData.dataFrame.columns]
         print(stateData.dataFrame)
         return 0
+
+    def clearDataFrame(self, stateData: StateData):
+        stateData.dataFrame = stateData.cleanDataFrame.copy(deep=True)

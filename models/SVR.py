@@ -10,8 +10,8 @@ class SVRmodel:
 
     parameters = {
         "kernel": ["linear", "rbf", "poly"],
-        "C": [0.00001, 0.01, 0.1, 1, 10],
-        "epsilon": [0.1, 0.01, 0.001]
+        "C": [0.0000001, 0.01, 0.1, 1, 10],
+        "epsilon": [0.01, 0.1, 0.01, 0.001]
     }
 
     def __init__(self):
@@ -42,6 +42,9 @@ class SVRmodel:
         self.RMSE = None
         self.MAPE = None
 
+        #fig
+        self.fig = None
+
     def prepareModel(self, kernel="rbf", C=10, epsilon=0.01):
         self.currentModel = SVR(kernel=kernel, C=C, epsilon=epsilon)
         return self.currentModel
@@ -49,7 +52,7 @@ class SVRmodel:
     def estimateHyperparameters(self, X, Y):
         model = SVR()
         tscv = TimeSeriesSplit(n_splits=5).split(X)
-        gsearch = GridSearchCV(estimator=model, cv=tscv, param_grid=SVRmodel.parameters, scoring=mean_squared_error)
+        gsearch = GridSearchCV(estimator=model, cv=tscv, param_grid=SVRmodel.parameters, scoring="neg_mean_squared_error")
         gsearch.fit(X,Y)
         print(gsearch.best_params_)
 
@@ -123,9 +126,8 @@ class SVRmodel:
         # self.wholeDatasetPrediction.append([self.predictionForTheDay[0].item()], ignore_index=False)
 
         plotDataframe = pd.concat([df['Close'], self.testPredictedValues], axis=1)
-        dp.plotBasicComparisonGraph(plotDataframe)
-
-        return self.wholeDatasetPrediction
+        self.fig = dp.plotBasicComparisonGraph(plotDataframe)
+        return self.fig
 
 
 if __name__ == '__main__':
