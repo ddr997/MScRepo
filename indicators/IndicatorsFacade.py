@@ -1,8 +1,4 @@
 import inspect
-
-from indicators.breadth.AdvanceDecline import *
-from indicators.breadth.UDVR import *
-
 from indicators.momentum.RelativeStrength import RelativeStrength
 from indicators.momentum.ROC import ROC
 from indicators.momentum.RSI import RSI
@@ -22,9 +18,6 @@ from indicators.volume.MFI import MFI
 from indicators.volume.OBV import OBV
 
 facade = {
-    # "AdvanceDecline": 0,
-    # "UDVR": 0,
-
     "RelativeStrength": RelativeStrength.calculate,
     "ROC": ROC.calculate,
     "RSI": RSI.calculate,

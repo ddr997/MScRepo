@@ -61,11 +61,11 @@ class DataProcessing():
         return df
 
     def generateXY_withDaysShift(df: DataFrame, daysShift: int):
-        target = df['Close'].shift(-1).dropna()
-        target = target.iloc[:len(target.values)-daysShift] # k target in k-1 row training
+        target = df['Close'].shift(-1).dropna().iloc[:len(df.index)-daysShift-1]
+        # target = target.iloc[:len(target.values)-daysShift] # k target in k-1 row training
 
         df_copy = df.copy(deep=True)
-        input = df_copy.drop('Close', axis=1).iloc[:-1-daysShift] # k-1 row
+        input = df_copy.drop('Close', axis=1).iloc[:len(df.index)-daysShift] # k-1 row
         return input, target
 
 

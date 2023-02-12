@@ -27,7 +27,7 @@ class StockMenu():
         return stateData.stock
 
     def selectPeriod(self, stateData):
-        stateData.period = st.slider("Days to fetch from data source:", min_value=1, max_value=365 * 3, value=365)
+        stateData.period = st.slider("Days to fetch from data source:", min_value=1, max_value=365 * 3, value=500)
         return stateData.period
 
     def selectStockDataFilter(self, stateData):
