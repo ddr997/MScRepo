@@ -8,6 +8,7 @@ from Ticker import Ticker
 from UI.side.IndicatorsMenu import IndicatorsMenu
 from UI.side.ModelsMenu import ModelsMenu
 from UI.side.StockMenu import StockMenu
+from UI.central.PredictionPlot import PredictionPlot
 
 pd.set_option('display.max_colwidth', None)
 st.set_page_config(layout="wide")
@@ -43,8 +44,10 @@ class MainApp:
             if subPlotIndicatorName in self.stateData.dataFrame.columns:
                 self.stateData.plot.addIndicatorTrace(self.stateData.dataFrame, y=subPlotIndicatorName)
             st.plotly_chart(self.stateData.plot.fig, theme=None)
-            if self.stateData.predictionFigure != None:
-                st.plotly_chart(self.stateData.predictionFigure)
+            if self.stateData.predictionDataFrame is not None:
+                st.plotly_chart(
+                    PredictionPlot(self.stateData.predictionDataFrame).getPlot()
+                )
             # if "plotPred" in st.session_state.keys():
             #     st.plotly_chart(st.session_state.plotPred)
             #     col1, col2 = st.columns(2)

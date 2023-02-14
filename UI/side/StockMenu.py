@@ -41,6 +41,7 @@ class StockMenu():
         stateData.ticker = Ticker(stateData.stock)
         stateData.dataFrame = stateData.ticker.getData(stateData.period)[stateData.stockDataColumns]
         stateData.cleanDataFrame = stateData.dataFrame.copy(deep=True)
+        stateData.predictionDataFrame = None
         # stateData.plot = px.line(
         #     stateData.dataFrame["Close"],
         #     x=stateData.dataFrame.index,

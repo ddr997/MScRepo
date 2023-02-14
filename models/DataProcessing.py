@@ -70,7 +70,7 @@ class DataProcessing():
 
 
     def extendDataFrameWithLookbacksColumn(df: DataFrame, daysToLookBack: int):
-        for k in range(1,daysToLookBack+1):
+        for k in range(0, daysToLookBack+1):
             colIndex = "Close_k-"+str(k)
             df[colIndex] = df['Close'].shift(k)
         return df

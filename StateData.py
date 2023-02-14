@@ -1,3 +1,5 @@
+import pandas as pd
+
 from UI.central.Plot import Plot
 class StateData:
 
@@ -13,10 +15,11 @@ class StateData:
 
         # AI
         self.choosenModel = ""
-        self.predictionFigure = None
+
 
         # object fields
         self.ticker = None
-        self.dataFrame = None
-        self.cleanDataFrame = None
+        self.dataFrame = pd.DataFrame()
+        self.cleanDataFrame = pd.DataFrame()
+        self.predictionDataFrame = pd.DataFrame()
         self.plot = Plot()
