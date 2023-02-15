@@ -8,7 +8,7 @@ class Plot:
         self.fig.update_xaxes(rangeslider_visible=False)
         self.fig.update_layout(
             height=700,
-            width=1000,
+            width=900,
             title_text="Charts",
             template='plotly',
             xaxis=dict(type="date"),

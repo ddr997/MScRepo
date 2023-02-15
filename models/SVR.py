@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from sklearn.svm import SVR
@@ -52,6 +53,12 @@ class SVRmodel:
         print(self.bestHyperparameters)
 
     def createPrediction(self, df: DataFrame, daysToShift: int = 0):
+
+        # save real close prices
+        realClose = df["Close"]
+        # create diffrentiation
+        df['Close'] = df['Close'].diff()
+
         # generate data with shift, by default training happens on k-1, and it predicts k, and then we use all k data to predict k+1
         self.trainingData, self.targetData = dp.generateXY_withDaysShift(df, daysToShift)
 
@@ -81,11 +88,27 @@ class SVRmodel:
         self.testPredictedValues = dp.convertTo_Dataframe(testPredictedValues_array, index=self.indexForTestData, columnLabels=["SVR predicted C(k)"])
 
         # evaluate metrics
-        self.RMSE = dp.calculate_rmse(self.testY.values, self.testPredictedValues.values[:-1])
+        self.RMSE = dp.calculate_mse(self.testY.values, self.testPredictedValues.values[:-1])
         self.MAPE = dp.calculate_mape(self.testY.values, self.testPredictedValues.values[:-1])
         print(self.RMSE, self.MAPE)
 
-        predictionDataFrame = pd.concat([df['Close'], self.testPredictedValues], axis=1)
+        # concatenate prediction and real
+        predictionDataFrame = pd.concat([realClose, self.testPredictedValues], axis=1)
+
+        #convert output to Close prices
+        for i in range(0,len(predictionDataFrame.values)):
+            if predictionDataFrame.iloc[i,1] != np.nan:
+                predictionDataFrame.iloc[i,1] += predictionDataFrame.iloc[i-1, 0]
+
+        # dp.plotBasicComparisonGraph(predictionDataFrame).show()
         return predictionDataFrame
 
-
+if __name__ == '__main__':
+    ticker = Ticker("ALE.WA")
+    df = ticker.getData(500).iloc[:,0:5]
+    svr = SVRmodel()
+    svr.prepareModel()
+    predicted = svr.createPrediction(df, 1)
+    print(predicted)
+    print(svr.RMSE)
+    print(svr.MAPE)

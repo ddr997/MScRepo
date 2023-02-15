@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from StateData import StateData
 from indicators.IndicatorsFacade import IndicatorsFacade
 
@@ -31,3 +32,5 @@ class IndicatorsMenu:
 
     def clearDataFrame(self, stateData: StateData):
         stateData.dataFrame = stateData.cleanDataFrame.copy(deep=True)
+        stateData.predictionDataFrame = pd.DataFrame(stateData.dataFrame["Close"])
+

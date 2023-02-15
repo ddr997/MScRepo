@@ -8,6 +8,7 @@ from models.SVR import SVRmodel
 from models.GBoost import GBoost
 from models.LSTMmodel import LSTMmodel
 import pandas as pd
+from models.XGBoost import XGBoostModel
 
 class ModelsMenu:
     def __init__(self, stateData: StateData):
@@ -50,7 +51,7 @@ class ModelsMenu:
         return
 
     def GradientBoost(self, stateData):
-        with st.form("GB options"):
+        with st.form("GBoost options"):
             learning_rate = st.number_input("Learning rate", value=0.1)
             loss= st.selectbox("Loss function", ['squared_error'])
             n_estimators= st.number_input("Number of estimators", value=100, step = 1)
@@ -69,13 +70,34 @@ class ModelsMenu:
         return
 
     def XGBoost(self, stateData):
+        with st.form("XGBoost options"):
+
+
+
+
+            submit = st.form_submit_button(label="Make prediction")
+            arguments = dict()
+            if(submit):
+                self.runPrediction(stateData, XGBoostModel(), **arguments)
         return
 
     def LSTM(self, stateData):
         with st.form("LSTM options"):
+            units = st.number_input("Units in hidden layer", value=15, step = 1)
+            epochs = st.number_input("Epochs", value=100, step = 1)
+            batch_size = st.number_input("Batch size", value=32, step = 1)
+            activation = st.selectbox("Activation function", ["sigmoid", 'tanh'])
+            recurrent_activation = st.selectbox("Recurrent activation function", ["sigmoid", 'tanh'])
             submit = st.form_submit_button(label="Make prediction")
+            arguments = dict(
+                units=units,
+                epochs=epochs,
+                batch_size=batch_size,
+                activation=activation,
+                recurrent_activation=recurrent_activation
+            )
             if(submit):
-                self.runPrediction(stateData, LSTMmodel())
+                self.runPrediction(stateData, LSTMmodel(), **arguments)
         return
 
     def prepareGlobalSettings(self, df : DataFrame):
@@ -88,5 +110,6 @@ class ModelsMenu:
         df = self.prepareGlobalSettings(stateData.dataFrame)
         model.prepareModel(**kwargs)
         predDF = model.createPrediction(df, self.shifts)
-        stateData.predictionDataFrame = predDF
+        stateData.predictionDataFrame[predDF.columns[1]] = predDF.iloc[:, 1]
+        stateData.predictionDataFrame.dropna(inplace=True)
         st.experimental_rerun()

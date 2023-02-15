@@ -1,3 +1,4 @@
+import pandas
 import streamlit as st
 import plotly.express as px
 from Ticker import Ticker
@@ -41,15 +42,7 @@ class StockMenu():
         stateData.ticker = Ticker(stateData.stock)
         stateData.dataFrame = stateData.ticker.getData(stateData.period)[stateData.stockDataColumns]
         stateData.cleanDataFrame = stateData.dataFrame.copy(deep=True)
-        stateData.predictionDataFrame = None
-        # stateData.plot = px.line(
-        #     stateData.dataFrame["Close"],
-        #     x=stateData.dataFrame.index,
-        #     y="Close",
-        #     markers=True,
-        #     title=f"{stateData.stock} closing price line chart"
-        # )
-        # stateData.plot.update_traces(line_color='#05F097', line_width=2, marker_size=1)
+        stateData.predictionDataFrame = pandas.DataFrame(stateData.dataFrame["Close"])
         stateData.plot.generateFigure(stateData.dataFrame)
 
         # save state
