@@ -96,6 +96,15 @@ class DataProcessing():
         mape = mean_absolute_percentage_error(y_true, y_pred)
         return mape
 
+    def calculate_mda(df: DataFrame):
+        """
+        Calculate Mean Directional Accuracy
+        """
+        signs = np.sign(df.diff())
+        signs.dropna(inplace=True)
+        AND = signs.iloc[:,0] * signs.iloc[:,1]
+        return 100*(AND[AND > 0].sum()/len(AND.values))
+
     def createSlidingWindow(array: np.ndarray, daysToLookBack):
         # df["C_k"] = pd.Series(dtype=object)
         # for k in range(daysToLookBack, len(df.values)):

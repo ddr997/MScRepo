@@ -9,7 +9,6 @@ class Plot:
         self.fig.update_layout(
             height=700,
             width=900,
-            title_text="Charts",
             template='plotly',
             xaxis=dict(type="date"),
             yaxis=dict(autorange=True, fixedrange=False, domain=[0, 0.3]),

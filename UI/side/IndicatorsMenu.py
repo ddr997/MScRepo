@@ -13,7 +13,7 @@ class IndicatorsMenu:
             labels = IndicatorsFacade.indicatorsList
             with st.form("indicatorsForm"):
                 with st.expander("Select filter"):
-                    stateData.selectedIndicators = {label: st.checkbox(label, value=False) for label in labels}
+                    stateData.selectedIndicators = {label: st.checkbox(label, value=True) for label in labels}
                     stateData.selectedIndicators = [k for k in stateData.selectedIndicators.keys() if
                                                   stateData.selectedIndicators.get(k)]
                 self.submit = st.form_submit_button(label="Calculate")

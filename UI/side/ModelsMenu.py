@@ -42,22 +42,39 @@ class ModelsMenu:
     def SVR(self, stateData):
         with st.form("SVR options"):
             kernel = st.selectbox("Kernel", ["linear", "rbf", "poly"])
-            C = st.number_input("C", value=10.0)
-            epsilon = st.number_input("Epsilon", value=0.1)
+            C = st.number_input("C", value=1.0, format="%.5f")
+            epsilon = st.number_input("Epsilon", value=1e-3, format="%.5f")
             submit = st.form_submit_button(label="Make prediction")
             arguments = dict(kernel=kernel, C=C, epsilon=epsilon)
             if(submit):
                 self.runPrediction(stateData, SVRmodel(), **arguments)
         return
 
+    def LSTM(self, stateData):
+        with st.form("LSTM options"):
+            units = st.number_input("Units in hidden layer", value=28, step = 1)
+            activation = st.selectbox("Activation function", ["sigmoid", 'tanh'])
+            epochs = st.number_input("Epochs", value=21, step = 1)
+            batch_size = st.number_input("Batch size", value=32, step = 1)
+            submit = st.form_submit_button(label="Make prediction")
+            arguments = dict(
+                units=units,
+                epochs=epochs,
+                batch_size=batch_size,
+                activation=activation,
+            )
+            if(submit):
+                self.runPrediction(stateData, LSTMmodel(), **arguments)
+        return
+
     def GradientBoost(self, stateData):
         with st.form("GBoost options"):
-            learning_rate = st.number_input("Learning rate", value=0.1)
-            loss= st.selectbox("Loss function", ['squared_error'])
-            n_estimators= st.number_input("Number of estimators", value=100, step = 1)
-            min_samples_split= st.number_input("Min samples split", value=2, step = 1)
-            min_samples_leaf= st.number_input("Min samples leaf", value=1, step = 1)
-            max_depth= st.number_input("Max Depth", value=3, step = 1)
+            learning_rate = st.number_input("Learning rate", value=0.2, step=0.001, format="%.5f")
+            min_samples_split = st.number_input("Min samples split", value=2, step = 1)
+            min_samples_leaf = st.number_input("Min samples leaf", value=1, step = 1)
+            max_depth = st.number_input("Max Depth", value=14, step = 1)
+            n_estimators = st.number_input("Number of estimators", value=100, step = 1)
+            loss = st.selectbox("Loss function", ['squared_error'])
             submit = st.form_submit_button(label="Make prediction")
             arguments = dict(learning_rate=learning_rate,
                              loss=loss,
@@ -72,32 +89,27 @@ class ModelsMenu:
     def XGBoost(self, stateData):
         with st.form("XGBoost options"):
 
-
-
-
-            submit = st.form_submit_button(label="Make prediction")
-            arguments = dict()
-            if(submit):
-                self.runPrediction(stateData, XGBoostModel(), **arguments)
-        return
-
-    def LSTM(self, stateData):
-        with st.form("LSTM options"):
-            units = st.number_input("Units in hidden layer", value=15, step = 1)
-            epochs = st.number_input("Epochs", value=100, step = 1)
-            batch_size = st.number_input("Batch size", value=32, step = 1)
-            activation = st.selectbox("Activation function", ["sigmoid", 'tanh'])
-            recurrent_activation = st.selectbox("Recurrent activation function", ["sigmoid", 'tanh'])
+            learning_rate = st.number_input("Learning rate", value=0.2, step=0.001, format="%.5f")
+            n_estimators= st.number_input("Number of estimators", value=100, step = 1)
+            max_depth= st.number_input("Max Depth", value=14, step = 1)
+            max_leaves = st.number_input("Max Leaves", value=0, step = 1, help="0 means no limit")
+            booster = st.selectbox("Loss function", ['gbtree', "gblinear"])
+            gamma = st.number_input("Gamma", value=0.0, step=0.001, format="%.5f")
+            reg_alpha = st.number_input("L1 regularization", value=0.0, step=0.001, format="%.5f")
+            reg_lambda = st.number_input("L2 regularization", value=1.0, step=0.001, format="%.5f")
             submit = st.form_submit_button(label="Make prediction")
             arguments = dict(
-                units=units,
-                epochs=epochs,
-                batch_size=batch_size,
-                activation=activation,
-                recurrent_activation=recurrent_activation
+                learning_rate=learning_rate,
+                n_estimators=n_estimators,
+                max_depth=max_depth,
+                max_leaves=max_leaves,
+                booster=booster,
+                gamma=gamma,
+                reg_alpha=reg_alpha,
+                reg_lambda=reg_lambda
             )
             if(submit):
-                self.runPrediction(stateData, LSTMmodel(), **arguments)
+                self.runPrediction(stateData, XGBoostModel(), **arguments)
         return
 
     def prepareGlobalSettings(self, df : DataFrame):
