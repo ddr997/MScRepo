@@ -5,6 +5,7 @@ import streamlit as st
 from StateData import StateData
 from ModelCreator import ModelCreator
 from Ticker import Ticker
+from UI.central.Estimators import Estimators
 from UI.side.IndicatorsMenu import IndicatorsMenu
 from UI.side.ModelsMenu import ModelsMenu
 from UI.side.StockMenu import StockMenu
@@ -48,6 +49,7 @@ class MainApp:
                 st.plotly_chart(
                     PredictionPlot(self.stateData.predictionDataFrame).getPlot()
                 )
+                Estimators(self.stateData)
             # if "plotPred" in st.session_state.keys():
             #     st.plotly_chart(st.session_state.plotPred)
             #     col1, col2 = st.columns(2)

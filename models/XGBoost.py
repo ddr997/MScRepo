@@ -35,6 +35,8 @@ class XGBoostModel:
         #metrics
         self.MSE = None
         self.MAPE = None
+        self.MDA = None
+        self.metricsDict = {}
 
         #computed best hyperparameters
         self.bestHyperparameters = None
@@ -107,6 +109,7 @@ class XGBoostModel:
         print(f"MSE:{self.MSE}\n" +
               f"MAPE:{self.MAPE}\n" +
               f"MDA:{self.MDA}")
+        self.metricsDict = {"XGBoost": [self.MSE, self.MAPE, self.MDA]}
 
 
         # dp.plotBasicComparisonGraph(predictionDataFrame).show()
@@ -114,7 +117,7 @@ class XGBoostModel:
 
 if __name__ == '__main__':
     ticker = Ticker("ALE.WA")
-    df = ticker.getData(500).iloc[:, 0:5]
+    df = ticker.getData(520).iloc[:, 0:5]
     xgboost = XGBoostModel()
     xgboost.prepareModel()
     predicted = xgboost.createPrediction(df, 2)

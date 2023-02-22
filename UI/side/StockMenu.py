@@ -44,6 +44,7 @@ class StockMenu():
         stateData.cleanDataFrame = stateData.dataFrame.copy(deep=True)
         stateData.predictionDataFrame = pandas.DataFrame(stateData.dataFrame["Close"])
         stateData.plot.generateFigure(stateData.dataFrame)
+        stateData.metrics = {}
 
         # save state
         st.session_state["state"] = stateData

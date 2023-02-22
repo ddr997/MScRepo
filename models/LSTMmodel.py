@@ -36,6 +36,8 @@ class LSTMmodel:
         # metrics
         self.MSE = None
         self.MAPE = None
+        self.MDA = None
+        self.metricsDict = {}
 
         # fig
         self.fig = None
@@ -129,6 +131,7 @@ class LSTMmodel:
         print(f"MSE:{self.MSE}\n" +
               f"MAPE:{self.MAPE}\n" +
               f"MDA:{self.MDA}")
+        self.metricsDict = {"LSTM": [self.MSE, self.MAPE, self.MDA]}
 
 
         # dp.plotBasicComparisonGraph(predictionDataFrame).show()

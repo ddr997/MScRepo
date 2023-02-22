@@ -32,6 +32,8 @@ class GBoost:
         #metrics
         self.MSE = None
         self.MAPE = None
+        self.MDA = None
+        self.metricsDict = {}
 
         #computed best hyperparameters
         self.bestHyperparameters = None
@@ -103,6 +105,7 @@ class GBoost:
         print(f"MSE:{self.MSE}\n" +
               f"MAPE:{self.MAPE}\n" +
               f"MDA:{self.MDA}")
+        self.metricsDict = {"GBoost": [self.MSE, self.MAPE, self.MDA]}
 
 
         return predictionDataFrame

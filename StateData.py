@@ -16,10 +16,12 @@ class StateData:
         # AI
         self.choosenModel = ""
 
-
         # object fields
         self.ticker = None
         self.dataFrame = pd.DataFrame()
         self.cleanDataFrame = pd.DataFrame()
         self.predictionDataFrame = pd.DataFrame()
         self.plot = Plot()
+
+        #metrics
+        self.metrics = dict()

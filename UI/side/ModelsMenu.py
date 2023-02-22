@@ -121,7 +121,11 @@ class ModelsMenu:
     def runPrediction(self, stateData: StateData, model, **kwargs):
         df = self.prepareGlobalSettings(stateData.dataFrame)
         model.prepareModel(**kwargs)
+
         predDF = model.createPrediction(df, self.shifts)
         stateData.predictionDataFrame[predDF.columns[1]] = predDF.iloc[:, 1]
         stateData.predictionDataFrame.dropna(inplace=True)
+
+        stateData.metrics.update(model.metricsDict)
+
         st.experimental_rerun()
