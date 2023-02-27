@@ -1,5 +1,4 @@
 from pandas import DataFrame
-from ModelCreator import ModelCreator
 from StateData import StateData
 import streamlit as st
 import numpy as np
@@ -7,7 +6,6 @@ from models.DataProcessing import DataProcessing
 from models.SVR import SVRmodel
 from models.GBoost import GBoost
 from models.LSTMmodel import LSTMmodel
-import pandas as pd
 from models.XGBoost import XGBoostModel
 
 class ModelsMenu:
@@ -41,7 +39,7 @@ class ModelsMenu:
 
     def SVR(self, stateData):
         with st.form("SVR options"):
-            kernel = st.selectbox("Kernel", ["linear", "rbf", "poly"])
+            kernel = st.selectbox("Kernel", ["linear", "rbf", "poly", "sigmoid"])
             C = st.number_input("C", value=1.0, format="%.5f")
             epsilon = st.number_input("Epsilon", value=1e-3, format="%.5f")
             submit = st.form_submit_button(label="Make prediction")

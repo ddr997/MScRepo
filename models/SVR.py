@@ -6,8 +6,7 @@ from pandas import DataFrame
 from sklearn.svm import SVR
 from Ticker import Ticker
 from models.DataProcessing import DataProcessing as dp
-from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, RandomizedSearchCV
-from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import TimeSeriesSplit, RandomizedSearchCV
 from scipy.stats import uniform, randint
 class SVRmodel:
 
@@ -18,7 +17,7 @@ class SVRmodel:
     #     "epsilon": [1, 0.1, 1e-2, 1e-3, 1e-4]
     # }
     parameters = {
-        "kernel": ["linear", "rbf", "poly"],
+        "kernel": ["linear", "rbf", "sigmoid"],
         "C": uniform(0.1, 9.9),
         "epsilon": uniform(1e-3, 0.1)
     }

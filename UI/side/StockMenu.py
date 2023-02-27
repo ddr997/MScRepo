@@ -1,10 +1,7 @@
 import pandas
 import streamlit as st
-import plotly.express as px
 from Ticker import Ticker
 from StateData import StateData
-import plotly.graph_objects as go
-
 
 class StockMenu():
 

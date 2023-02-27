@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 from pandas import DataFrame
 from scipy.stats import randint, uniform
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, RandomizedSearchCV
+from sklearn.model_selection import TimeSeriesSplit, RandomizedSearchCV
 from Ticker import Ticker
 from models.DataProcessing import DataProcessing as dp
 import xgboost as xgb
